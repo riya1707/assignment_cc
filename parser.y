@@ -3,6 +3,7 @@
     #include<string.h>
     #include<stdlib.h>
     #include<ctype.h>
+	#include <stdbool.h>
     #include"lex.yy.c"
     void yyerror(const char *s);
     int yylex();
@@ -50,8 +51,7 @@
 
 %}
 
-%union { char* str;
-    int intValue;
+%union { 
 	
 	struct var_name { 
 			char name[100]; 
@@ -91,9 +91,7 @@ headers: headers headers { $$.nd = mknode($1.nd, $2.nd, "headers"); }
 main: datatype ID { add('F'); }
 ;
 
-datatype: INT { insert_type(); $$.intValue = 1;
-        $<numVars>$ = 1;
-	}
+datatype: INT { insert_type(); }
 | FLOAT { insert_type(); }
 | CHAR { insert_type(); }
 | VOID { insert_type(); }
