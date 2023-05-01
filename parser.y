@@ -50,7 +50,10 @@
 
 %}
 
-%union { struct var_name { 
+%union { char* str;
+    int intValue;
+	
+	struct var_name { 
 			char name[100]; 
 			struct node* nd;
 		} nd_obj;
@@ -88,7 +91,9 @@ headers: headers headers { $$.nd = mknode($1.nd, $2.nd, "headers"); }
 main: datatype ID { add('F'); }
 ;
 
-datatype: INT { insert_type(); }
+datatype: INT { insert_type(); $$.intValue = 1;
+        $<numVars>$ = 1;
+	}
 | FLOAT { insert_type(); }
 | CHAR { insert_type(); }
 | VOID { insert_type(); }
@@ -113,18 +118,18 @@ body: FOR { add('K'); is_for = 1; } '(' statement ';' condition ';' statement ')
 }
 | statement ';' { $$.nd = $1.nd; }
 | body body { $$.nd = mknode($1.nd, $2.nd, "statements"); }
-| PRINTFF { add('K'); } '(' STR ')' ';' 
+| PRINTFF '(' STR ')' ';' 
 				{ 
-					if (!checkFormatSpecifier($2, $1.numVars)) {
+					if (!checkFormatSpecifier($3, $1.numVars)) {
                     yyerror("Mismatched format specifier and variables");
                 }
 				else{
 					$$.nd = mknode(NULL, NULL, "printf");
 				} 
 		}
-| PRINTFF { add('K'); } '(' STR ')' ',' var_list ';' 
+| PRINTFF '(' STR ')' ',' var_list ';' 
 				{ 
-					if (!checkFormatSpecifier($2, $1.numVars)) {
+					if (!checkFormatSpecifier($3, $1.numVars)) {
                     yyerror("Mismatched format specifier and variables");
                 }
 				else{
