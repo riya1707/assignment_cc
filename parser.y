@@ -121,7 +121,7 @@ body: FOR { add('K'); is_for = 1; } '(' statement ';' condition ';' statement ')
 | body body { $$.nd = mknode($1.nd, $2.nd, "statements"); }
 | PRINTFF '(' STR ')' ';' 
 				{ 
-					if (!checkFormatSpecifier($3, $1.numVars)) {
+					if (!checkFormatSpecifier($3, numVars)) {
                     yyerror("Mismatched format specifier and variables");
                 }
 				else{
@@ -131,7 +131,7 @@ body: FOR { add('K'); is_for = 1; } '(' statement ';' condition ';' statement ')
 		}
 | PRINTFF '(' STR ')' ',' var_list ';' 
 				{ 
-					if (!checkFormatSpecifier($3, $1.numVars)) {
+					if (!checkFormatSpecifier($3, numVars)) {
                     yyerror("Mismatched format specifier and variables");
                 }
 				else{
