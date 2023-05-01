@@ -56,7 +56,6 @@
 	
 	struct var_name { 
 			char name[100]; 
-			int intValue;
 			struct node* nd;
 		} nd_obj;
 
@@ -94,8 +93,7 @@ main: datatype ID { add('F'); }
 ;
 
 datatype: INT { insert_type();
-		$$.intValue = 1;
-        $<numVars>$ = 1; }
+		numVars++; }
 | FLOAT { insert_type(); }
 | CHAR { insert_type(); }
 | VOID { insert_type(); }
@@ -128,6 +126,7 @@ body: FOR { add('K'); is_for = 1; } '(' statement ';' condition ';' statement ')
 				else{
 					$$.nd = mknode(NULL, NULL, "printf");
 				} 
+				numVars=0;
 		}
 | PRINTFF '(' STR ')' ',' var_list ';' 
 				{ 
@@ -137,6 +136,7 @@ body: FOR { add('K'); is_for = 1; } '(' statement ';' condition ';' statement ')
 				else{
 					$$.nd = mknode(NULL, NULL, "printf");
 				} 
+				numVars=0;
 		}
 | SCANFF { add('K'); } '(' STR ',' '&' ID ')' ';' { $$.nd = mknode(NULL, NULL, "scanf"); }
 ;
@@ -529,23 +529,25 @@ void print_tree_util(struct node *root, int space) {
     print_tree_util(root->left, space);
 }
 
-bool checkFormatSpecifier(const char* format, int numVars) {
-    int i = 0;
-    int count = 0;
-    while (format[i] != '\0') {
+int numVars = 0;
+
+bool checkFormatSpecifiers(const char* format, int numVars) {
+    int specifierCount = 0;
+    int formatLength = strlen(format);
+    bool insideSpecifier = false;
+    
+    for (int i = 0; i < formatLength; i++) {
         if (format[i] == '%') {
-            if (format[i+1] == 'd') {
-                count++;
-                if (count > numVars) {
-                    return false;
-                }
+            insideSpecifier = true;
+        } else if (insideSpecifier) {
+            if (format[i] == 'd') {
+                specifierCount++;
+                insideSpecifier = false;
             }
-            i += 2;
-        } else {
-            i++;
         }
     }
-    return count == numVars;
+    
+    return specifierCount == numVars;
 }
 
 void insert_type() {
