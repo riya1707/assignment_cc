@@ -20,6 +20,7 @@
 	int check_types(char *, char *);
 	char *get_type(char *);
 	struct node* mknode(struct node *left, struct node *right, char *token);
+	bool checkFormatSpecifier(const char *, int);
 
     struct dataType {
         char * id_name;
@@ -55,6 +56,7 @@
 	
 	struct var_name { 
 			char name[100]; 
+			int intValue;
 			struct node* nd;
 		} nd_obj;
 
@@ -91,7 +93,9 @@ headers: headers headers { $$.nd = mknode($1.nd, $2.nd, "headers"); }
 main: datatype ID { add('F'); }
 ;
 
-datatype: INT { insert_type(); }
+datatype: INT { insert_type();
+		$$.intValue = 1;
+        $<numVars>$ = 1; }
 | FLOAT { insert_type(); }
 | CHAR { insert_type(); }
 | VOID { insert_type(); }
