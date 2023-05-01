@@ -29,6 +29,7 @@
         int line_no;
 	} symbol_table[40];
 
+    int numVars=0;
     int count=0;
     int q;
 	char type[10];
@@ -528,8 +529,6 @@ void print_tree_util(struct node *root, int space) {
 	printf("%s\n", root->token);
     print_tree_util(root->left, space);
 }
-
-int numVars = 0;
 
 bool checkFormatSpecifiers(const char* format, int numVars) {
     int specifierCount = 0;
