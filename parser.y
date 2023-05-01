@@ -94,6 +94,10 @@ datatype: INT { insert_type(); }
 | VOID { insert_type(); }
 ;
 
+var_list: datatype
+| datatype ',' var_list
+;
+
 body: FOR { add('K'); is_for = 1; } '(' statement ';' condition ';' statement ')' '{' body '}' { 
 	struct node *temp = mknode($6.nd, $8.nd, "CONDITION"); 
 	struct node *temp2 = mknode($4.nd, temp, "CONDITION"); 
@@ -109,7 +113,24 @@ body: FOR { add('K'); is_for = 1; } '(' statement ';' condition ';' statement ')
 }
 | statement ';' { $$.nd = $1.nd; }
 | body body { $$.nd = mknode($1.nd, $2.nd, "statements"); }
-| PRINTFF { add('K'); } '(' STR ')' ';' { $$.nd = mknode(NULL, NULL, "printf"); }
+| PRINTFF { add('K'); } '(' STR ')' ';' 
+				{ 
+					if (!checkFormatSpecifier($3, $1.numVars)) {
+                    yyerror("Mismatched format specifier and variables");
+                }
+				else{
+					$$.nd = mknode(NULL, NULL, "printf");
+				} 
+		}
+| PRINTFF { add('K'); } '(' STR ')' ',' var_list ';' 
+				{ 
+					if (!checkFormatSpecifier($3, $1.numVars)) {
+                    yyerror("Mismatched format specifier and variables");
+                }
+				else{
+					$$.nd = mknode(NULL, NULL, "printf");
+				} 
+		}
 | SCANFF { add('K'); } '(' STR ',' '&' ID ')' ';' { $$.nd = mknode(NULL, NULL, "scanf"); }
 ;
 
@@ -499,6 +520,25 @@ void print_tree_util(struct node *root, int space) {
         printf(" ");
 	printf("%s\n", root->token);
     print_tree_util(root->left, space);
+}
+
+bool checkFormatSpecifier(const char* format, int numVars) {
+    int i = 0;
+    int count = 0;
+    while (format[i] != '\0') {
+        if (format[i] == '%') {
+            if (format[i+1] == 'd') {
+                count++;
+                if (count > numVars) {
+                    return false;
+                }
+            }
+            i += 2;
+        } else {
+            i++;
+        }
+    }
+    return count == numVars;
 }
 
 void insert_type() {
