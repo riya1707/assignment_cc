@@ -54,8 +54,7 @@
 %}
 
 %union { 
-	
-	struct var_name { 
+		struct var_name { 
 			char name[100]; 
 			struct node* nd;
 		} nd_obj;
@@ -530,7 +529,7 @@ void print_tree_util(struct node *root, int space) {
     print_tree_util(root->left, space);
 }
 
-bool checkFormatSpecifiers(const char* format, int numVars) {
+bool checkFormatSpecifiers(const char* format, char numVars) {
     int specifierCount = 0;
     int formatLength = strlen(format);
     bool insideSpecifier = false;
